@@ -141,7 +141,7 @@ def call_lyzr(kind, prompt):
         "user_id": LYZR_USER_ID,
         "agent_id": agent_id,
         "session_id": session_id,
-        "message": prompt,
+        "message": json.dumps(prompt, indent=2),
         "system_prompt_variables": {},
         "filter_variables": {},
         "features": [],
