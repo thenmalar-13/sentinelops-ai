@@ -1,416 +1,1356 @@
-
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SentinelOps AI</title>
+
 <style>
-:root{--bg:#07090d;--panel:#0e1219;--line:#242b35;--text:#eef2f7;--muted:#8994a3;--accent:#ffbd2e;--good:#45d483;--warn:#ffc857;--bad:#ff5d73}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Arial}
-header{padding:22px 30px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-.brand{font-size:22px;font-weight:800;letter-spacing:.5px}.brand span{color:var(--accent)}
-button{background:var(--accent);border:0;border-radius:9px;padding:11px 17px;font-weight:800;cursor:pointer}
-main{padding:24px;max-width:1450px;margin:auto}.hero{display:flex;justify-content:space-between;align-items:end;margin-bottom:22px}
-h1{margin:0;font-size:34px}.muted{color:var(--muted)}
-.grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:18px}
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.kpi{padding:15px;border:1px solid var(--line);border-radius:12px;background:#0a0d12}.kpi b{font-size:25px;display:block;margin-top:5px}
-.badge{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}.p1{background:#3a1620;color:#ff7890}.green{background:#123523;color:#62e59a}.yellow{background:#3a2b10;color:#ffd36c}
-.flow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:15px 0}.step{padding:9px 12px;border:1px solid var(--line);border-radius:9px;color:#cdd5df;font-size:13px}.arrow{color:var(--accent)}
-.evidence{display:grid;gap:9px}.ev{border:1px solid var(--line);border-radius:10px;padding:11px}.ev strong{font-size:12px;color:var(--accent)}
-pre{white-space:pre-wrap;color:#cbd5e1;background:#080b10;padding:12px;border-radius:10px;overflow:auto}
-.actions{display:flex;gap:10px;align-items:center}.danger{color:var(--bad)}.success{color:var(--good)}
-.timeline{display:grid;gap:10px}.tl{display:flex;gap:12px;align-items:center}.dot{width:9px;height:9px;border-radius:50%;background:var(--good)}
-@media(max-width:900px){.grid{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
+:root{
+  --bg:#07090d;
+  --panel:#0e1219;
+  --line:#242b35;
+  --text:#eef2f7;
+  --muted:#8994a3;
+  --accent:#ffbd2e;
+  --good:#45d483;
+  --warn:#ffc857;
+  --bad:#ff5d73
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,system-ui,Arial
+}
+
+header{
+  padding:22px 30px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  align-items:center
+}
+
+.brand{
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:.5px
+}
+
+.brand span{
+  color:var(--accent)
+}
+
+button{
+  background:var(--accent);
+  border:0;
+  border-radius:9px;
+  padding:11px 17px;
+  font-weight:800;
+  cursor:pointer
+}
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed
+}
+
+main{
+  padding:24px;
+  max-width:1450px;
+  margin:auto
+}
+
+.hero{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  margin-bottom:22px
+}
+
+h1{
+  margin:0;
+  font-size:34px
+}
+
+.muted{
+  color:var(--muted)
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1.25fr .75fr;
+  gap:18px
+}
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:18px
+}
+
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px
+}
+
+.kpi{
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#0a0d12
+}
+
+.kpi b{
+  font-size:25px;
+  display:block;
+  margin-top:5px
+}
+
+.badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800
+}
+
+.p1{
+  background:#3a1620;
+  color:#ff7890
+}
+
+.green{
+  background:#123523;
+  color:#62e59a
+}
+
+.yellow{
+  background:#3a2b10;
+  color:#ffd36c
+}
+
+.red{
+  background:#3a1620;
+  color:#ff7890
+}
+
+.flow{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin:15px 0
+}
+
+.step{
+  padding:9px 12px;
+  border:1px solid var(--line);
+  border-radius:9px;
+  color:#cdd5df;
+  font-size:13px
+}
+
+.arrow{
+  color:var(--accent)
+}
+
+.evidence{
+  display:grid;
+  gap:9px
+}
+
+.ev{
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:11px
+}
+
+.ev strong{
+  font-size:12px;
+  color:var(--accent)
+}
+
+pre{
+  white-space:pre-wrap;
+  color:#cbd5e1;
+  background:#080b10;
+  padding:12px;
+  border-radius:10px;
+  overflow:auto
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  align-items:center
+}
+
+.danger{
+  color:var(--bad)
+}
+
+.success{
+  color:var(--good)
+}
+
+.timeline{
+  display:grid;
+  gap:10px
+}
+
+.tl{
+  display:flex;
+  gap:12px;
+  align-items:center
+}
+
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--good);
+  flex:none
+}
+
+.dot.pending{
+  background:var(--warn)
+}
+
+@media(max-width:900px){
+  .grid{
+    grid-template-columns:1fr
+  }
+
+  .kpis{
+    grid-template-columns:repeat(2,1fr)
+  }
+}
 </style>
 </head>
+
 <body>
-<header><div class="brand">SENTINEL<span>OPS</span> AI</div><div><span class="badge green" id="status">SYSTEM READY</span></div></header>
+
+<header>
+  <div class="brand">
+    SENTINEL<span>OPS</span> AI
+  </div>
+
+  <div>
+    <span class="badge green" id="status">
+      SYSTEM READY
+    </span>
+  </div>
+</header>
+
 <main>
+
 <section class="hero">
-<div><div class="muted">GOVERNED CLOUD INCIDENT RESPONSE</div><h1>Incident Command Center</h1><div class="muted">Evidence-grounded triage • Safe remediation • Human approval</div></div>
-<button onclick="analyze()">Analyze P1 Incident</button>
+
+  <div>
+    <div class="muted">
+      GOVERNED CLOUD INCIDENT RESPONSE
+    </div>
+
+    <h1>
+      Incident Command Center
+    </h1>
+
+    <div class="muted">
+      Evidence-grounded triage • Safe remediation • Human approval
+    </div>
+  </div>
+
+  <button onclick="analyze()">
+    Analyze P1 Incident
+  </button>
+
 </section>
 
 <div class="panel">
-<div class="flow">
-<div class="step">🚨 Alert Ingest</div><div class="arrow">→</div>
-<div class="step">🔎 Triage Agent</div><div class="arrow">→</div>
-<div class="step">🧠 Diagnosis</div><div class="arrow">→</div>
-<div class="step">📚 Evidence</div><div class="arrow">→</div>
-<div class="step">🛡️ Safety Gate</div><div class="arrow">→</div>
-<div class="step">👤 HITL</div><div class="arrow">→</div>
-<div class="step">📋 RCA</div>
-</div>
+
+  <div class="flow">
+
+    <div class="step">🚨 Alert Ingest</div>
+    <div class="arrow">→</div>
+
+    <div class="step">🔎 Triage Agent</div>
+    <div class="arrow">→</div>
+
+    <div class="step">🧠 Diagnosis</div>
+    <div class="arrow">→</div>
+
+    <div class="step">📚 Evidence</div>
+    <div class="arrow">→</div>
+
+    <div class="step">🛡️ Safety Gate</div>
+    <div class="arrow">→</div>
+
+    <div class="step">👤 HITL</div>
+    <div class="arrow">→</div>
+
+    <div class="step">📋 RCA</div>
+
+  </div>
+
 </div>
 
 <div id="content" style="margin-top:18px">
-<div class="panel"><div class="muted">Ready</div><h2>Run the demo incident</h2><p class="muted">The scenario contains synthetic Prometheus/Kubernetes-style telemetry. No real infrastructure is modified.</p></div>
+
+  <div class="panel">
+
+    <div class="muted">
+      Ready
+    </div>
+
+    <h2>
+      Run the demo incident
+    </h2>
+
+    <p class="muted">
+      The scenario contains synthetic Prometheus/Kubernetes-style
+      telemetry. No real infrastructure is modified.
+    </p>
+
+  </div>
+
 </div>
+
 </main>
 
 <script>
+
 async function analyze(){
- const status=document.getElementById("status");
- const button=document.querySelector(".hero button");
 
- status.textContent="ANALYZING";
- button.disabled=true;
- button.textContent="Analyzing...";
+  const status=document.getElementById("status");
+  const button=document.querySelector(".hero button");
 
- try{
-   const r=await fetch("/api/analyze",{
-     method:"POST",
-     headers:{"Content-Type":"application/json"},
-     body:JSON.stringify({})
-   });
+  status.textContent="ANALYZING";
 
-   const d=await r.json();
+  button.disabled=true;
+  button.textContent="Analyzing...";
 
-   if(!r.ok){
-     throw new Error(d.detail || `Analysis failed (${r.status})`);
-   }
+  try{
 
-   console.log("SentinelOps analysis response:",d);
+    const r=await fetch("/api/analyze",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({})
+    });
 
-   render(d);
-   status.textContent="ANALYSIS COMPLETE";
+    const d=await r.json();
 
- }catch(err){
-   console.error("SentinelOps analyze error:",err);
+    if(!r.ok){
+      throw new Error(
+        d.detail || `Analysis failed (${r.status})`
+      );
+    }
 
-   status.textContent="ANALYSIS FAILED";
+    console.log(
+      "SentinelOps analysis response:",
+      d
+    );
 
-   document.getElementById("content").innerHTML=`
-     <div class="panel">
-       <div class="muted">ANALYSIS ERROR</div>
-       <h2 class="danger">Incident analysis could not be completed</h2>
-       <p class="muted">${escapeHtml(err.message || "Unknown error")}</p>
-       <p class="muted">
-         Check the browser console and Render logs for the backend/Lyzr error.
-       </p>
-     </div>
-   `;
- }finally{
-   button.disabled=false;
-   button.textContent="Analyze P1 Incident";
- }
+    render(d);
+
+    status.textContent="ANALYSIS COMPLETE";
+
+  }catch(err){
+
+    console.error(
+      "SentinelOps analyze error:",
+      err
+    );
+
+    status.textContent="ANALYSIS FAILED";
+
+    document.getElementById("content").innerHTML=`
+
+      <div class="panel">
+
+        <div class="muted">
+          ANALYSIS ERROR
+        </div>
+
+        <h2 class="danger">
+          Incident analysis could not be completed
+        </h2>
+
+        <p class="muted">
+          ${escapeHtml(
+            err.message || "Unknown error"
+          )}
+        </p>
+
+        <p class="muted">
+          Check the browser console and Render logs
+          for the backend/Lyzr error.
+        </p>
+
+      </div>
+
+    `;
+
+  }finally{
+
+    button.disabled=false;
+    button.textContent="Analyze P1 Incident";
+
+  }
 }
+
 
 function escapeHtml(value){
- return String(value ?? "")
-   .replace(/&/g,"&amp;")
-   .replace(/</g,"&lt;")
-   .replace(/>/g,"&gt;")
-   .replace(/"/g,"&quot;")
-   .replace(/'/g,"&#039;");
+
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
 }
+
 
 function asArray(value){
- if(Array.isArray(value)) return value;
- if(value === undefined || value === null) return [];
- return [value];
+
+  if(Array.isArray(value))
+    return value;
+
+  if(value === undefined || value === null)
+    return [];
+
+  return [value];
+
 }
 
+
 function safeText(value,fallback="—"){
- if(value === undefined || value === null || value === ""){
-   return fallback;
- }
- return escapeHtml(value);
+
+  if(
+    value === undefined ||
+    value === null ||
+    value === ""
+  ){
+    return fallback;
+  }
+
+  return escapeHtml(value);
+
 }
+
 
 function render(d){
 
- const triage=d?.triage || {};
- const diagnosis=d?.diagnosis || {};
- const remediation=d?.remediation || {};
- const safety=d?.safety || {};
- const performance=d?.performance || {};
- const audit=asArray(d?.audit);
+  const triage=d?.triage || {};
+  const diagnosis=d?.diagnosis || {};
+  const remediation=d?.remediation || {};
+  const safety=d?.safety || {};
+  const performance=d?.performance || {};
 
- const signals=asArray(triage.signals);
- const evidence=asArray(diagnosis.evidence);
- const alternatives=asArray(diagnosis.alternative_hypotheses);
+  const audit=asArray(d?.audit);
 
- const sig=signals.map(x=>{
-   if(typeof x==="string"){
-     return `<div class="ev">${escapeHtml(x)}</div>`;
-   }
+  const signals=asArray(
+    triage.signals
+  );
 
-   return `
-     <div class="ev">
-       <strong>${safeText(x?.source_id || x?.id)}</strong><br>
-       ${safeText(x?.fact || x?.reason || x?.text)}
-     </div>
-   `;
- }).join("") || `
-   <div class="ev muted">No structured triage signals returned.</div>
- `;
+  const evidence=asArray(
+    diagnosis.evidence
+  );
 
- const ev=evidence.map(x=>{
-   if(typeof x==="string"){
-     return `<div class="ev">${escapeHtml(x)}</div>`;
-   }
+  const alternatives=asArray(
+    diagnosis.alternative_hypotheses
+  );
 
-   return `
-     <div class="ev">
-       <strong>${safeText(x?.id || x?.source_id)}</strong><br>
-       ${safeText(x?.reason || x?.fact || x?.text)}
-     </div>
-   `;
- }).join("") || `
-   <div class="ev muted">No structured diagnostic evidence returned.</div>
- `;
 
- const altText=alternatives
-   .map(x=>{
-     if(typeof x==="string") return x;
-     return x?.hypothesis || x?.reason || x?.text || JSON.stringify(x);
-   })
-   .join("\n");
+  const sig=signals.map(x=>{
 
- const auditHtml=audit.map(x=>{
-   if(typeof x==="string"){
-     return `
-       <div class="tl">
-         <span class="dot"></span>
-         <span>${escapeHtml(x)}</span>
-       </div>
-     `;
-   }
+    if(typeof x==="string"){
 
-   return `
-     <div class="tl">
-       <span class="dot"></span>
-       <span>${safeText(x?.step || x?.event || x?.name)}</span>
-       <span class="muted">${safeText(x?.status)}</span>
-     </div>
-   `;
- }).join("") || `
-   <div class="muted">Audit timeline unavailable.</div>
- `;
+      return `
+        <div class="ev">
+          ${escapeHtml(x)}
+        </div>
+      `;
 
- const safetyStatus=safety.status || "HITL_REQUIRED";
+    }
 
- document.getElementById("content").innerHTML=`
-   <div class="kpis">
+    return `
+      <div class="ev">
 
-     <div class="kpi">
-       Severity
-       <b>
-         <span class="badge p1">${safeText(triage.severity,"P1")}</span>
-       </b>
-     </div>
+        <strong>
+          ${safeText(
+            x?.source_id || x?.id
+          )}
+        </strong>
 
-     <div class="kpi">
-       Error Rate
-       <b>${safeText(performance.error_rate,"18.7%")}</b>
-       <span class="muted">baseline 1.2%</span>
-     </div>
+        <br>
 
-     <div class="kpi">
-       Memory
-       <b>${safeText(performance.memory,"94%")}</b>
-       <span class="muted">baseline 52%</span>
-     </div>
+        ${safeText(
+          x?.fact ||
+          x?.reason ||
+          x?.text
+        )}
 
-     <div class="kpi">
-       Latency
-       <b>${safeText(performance.latency_ms,"—")}ms</b>
-       <span class="muted">end-to-end</span>
-     </div>
+      </div>
+    `;
 
-   </div>
+  }).join("") || `
 
-   <div class="grid" style="margin-top:18px">
+    <div class="ev muted">
+      No structured triage signals returned.
+    </div>
 
-     <div class="panel">
+  `;
 
-       <div class="muted">ROOT CAUSE DIAGNOSIS</div>
 
-       <h2>
-         ${safeText(
-           diagnosis.root_cause,
-           "Root cause could not be determined from the available evidence."
-         )}
-       </h2>
+  const ev=evidence.map(x=>{
 
-       <p>
-         Confidence:
-         <b>${
-           diagnosis.confidence !== undefined &&
-           diagnosis.confidence !== null &&
-           diagnosis.confidence !== ""
-             ? `${Math.round(Number(diagnosis.confidence) * 100)}%`
-             : "—"
-         }</b>
-       </p>
+    if(typeof x==="string"){
 
-       <h3>Evidence chain</h3>
+      return `
+        <div class="ev">
+          ${escapeHtml(x)}
+        </div>
+      `;
 
-       <div class="evidence">
-         ${ev}
-       </div>
+    }
 
-       <h3>Alternative hypotheses</h3>
+    return `
+      <div class="ev">
 
-       <pre>${escapeHtml(
-         altText || "No alternative hypotheses returned."
-       )}</pre>
+        <strong>
+          ${safeText(
+            x?.id ||
+            x?.source_id
+          )}
+        </strong>
 
-     </div>
+        <br>
 
-     <div>
+        ${safeText(
+          x?.reason ||
+          x?.fact ||
+          x?.text
+        )}
 
-       <div class="panel">
+      </div>
+    `;
 
-         <div class="muted">SAFETY GATE</div>
+  }).join("") || `
 
-         <h2 class="${safetyStatus==="HITL_REQUIRED" ? "" : "danger"}">
-           ${safeText(safetyStatus)}
-         </h2>
+    <div class="ev muted">
+      No structured diagnostic evidence returned.
+    </div>
 
-         <p>
-           ${safeText(
-             safety.reason,
-             "Human approval is required before production-changing remediation."
-           )}
-         </p>
+  `;
 
-         <h3>Blocked actions</h3>
 
-         <pre>DROP DATABASE
+  const altText=alternatives
+    .map(x=>{
+
+      if(typeof x==="string")
+        return x;
+
+      return (
+        x?.hypothesis ||
+        x?.reason ||
+        x?.text ||
+        JSON.stringify(x)
+      );
+
+    })
+    .join("\n");
+
+
+  const auditHtml=audit.map(x=>{
+
+    if(typeof x==="string"){
+
+      return `
+        <div class="tl">
+
+          <span class="dot"></span>
+
+          <span>
+            ${escapeHtml(x)}
+          </span>
+
+        </div>
+      `;
+
+    }
+
+    const statusText=
+      x?.status || "pending";
+
+    const isPending=
+      String(statusText).toLowerCase()
+        .includes("pending");
+
+    return `
+      <div class="tl">
+
+        <span class="dot ${
+          isPending ? "pending" : ""
+        }"></span>
+
+        <span>
+          ${safeText(
+            x?.step ||
+            x?.event ||
+            x?.name
+          )}
+        </span>
+
+        <span class="muted">
+          ${safeText(statusText)}
+        </span>
+
+      </div>
+    `;
+
+  }).join("") || `
+
+    <div class="muted">
+      Audit timeline unavailable.
+    </div>
+
+  `;
+
+
+  const safetyStatus=
+    safety.status ||
+    "HITL_REQUIRED";
+
+
+  /*
+   * GOVERNANCE RULE:
+   * Any production-changing remediation
+   * requires explicit human approval.
+   */
+  const hitlRequired=true;
+
+
+  document.getElementById("content").innerHTML=`
+
+    <div class="kpis">
+
+      <div class="kpi">
+
+        Severity
+
+        <b>
+
+          <span class="badge p1">
+            ${safeText(
+              triage.severity,
+              "P1"
+            )}
+          </span>
+
+        </b>
+
+      </div>
+
+
+      <div class="kpi">
+
+        Error Rate
+
+        <b>
+          ${safeText(
+            performance.error_rate,
+            "18.7%"
+          )}
+        </b>
+
+        <span class="muted">
+          baseline 1.2%
+        </span>
+
+      </div>
+
+
+      <div class="kpi">
+
+        Memory
+
+        <b>
+          ${safeText(
+            performance.memory,
+            "94%"
+          )}
+        </b>
+
+        <span class="muted">
+          baseline 52%
+        </span>
+
+      </div>
+
+
+      <div class="kpi">
+
+        Latency
+
+        <b>
+          ${safeText(
+            performance.latency_ms,
+            "—"
+          )}ms
+        </b>
+
+        <span class="muted">
+          end-to-end
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="grid"
+      style="margin-top:18px"
+    >
+
+      <div class="panel">
+
+        <div class="muted">
+          ROOT CAUSE DIAGNOSIS
+        </div>
+
+        <h2>
+
+          ${safeText(
+            diagnosis.root_cause,
+            "Root cause could not be determined from the available evidence."
+          )}
+
+        </h2>
+
+
+        <p>
+
+          Confidence:
+
+          <b>
+
+            ${
+              diagnosis.confidence !== undefined &&
+              diagnosis.confidence !== null &&
+              diagnosis.confidence !== ""
+                ? `${Math.round(
+                    Number(diagnosis.confidence) * 100
+                  )}%`
+                : "—"
+            }
+
+          </b>
+
+        </p>
+
+
+        <h3>
+          Evidence chain
+        </h3>
+
+        <div class="evidence">
+          ${ev}
+        </div>
+
+
+        <h3>
+          Alternative hypotheses
+        </h3>
+
+        <pre>${escapeHtml(
+          altText ||
+          "No alternative hypotheses returned."
+        )}</pre>
+
+      </div>
+
+
+      <div>
+
+        <div class="panel">
+
+          <div class="muted">
+            SAFETY GATE
+          </div>
+
+          <h2 class="${
+            safetyStatus === "HITL_REQUIRED"
+              ? "yellow"
+              : "success"
+          }">
+
+            ${safeText(
+              safetyStatus
+            )}
+
+          </h2>
+
+
+          <p>
+
+            ${safeText(
+              safety.reason,
+              "Human approval is required before production-changing remediation."
+            )}
+
+          </p>
+
+
+          <h3>
+            Blocked actions
+          </h3>
+
+          <pre>DROP DATABASE
 DELETE POD
 REBOOT CLUSTER</pre>
 
-       </div>
+        </div>
 
-       <div class="panel" style="margin-top:18px">
 
-         <div class="muted">RECOMMENDED REMEDIATION</div>
+        <div
+          class="panel"
+          style="margin-top:18px"
+        >
 
-         <h2>
-           ${safeText(
-             remediation.action,
-             "NO_SAFE_REMEDIATION"
-           )}
-         </h2>
+          <div class="muted">
+            RECOMMENDED REMEDIATION
+          </div>
 
-         <p>
-           Risk:
-           <b>${safeText(remediation.risk,"UNKNOWN")}</b>
-           • HITL required:
-           <b>${safeText(
-             remediation.requires_human_approval === false ? "NO" : "YES"
-           )}</b>
-         </p>
 
-         <div class="actions">
-           <button onclick="approve(true)">✓ Approve</button>
+          <h2>
 
-           <button
-             onclick="approve(false)"
-             style="background:#242b35;color:#fff"
-           >
-             Reject
-           </button>
-         </div>
+            ${safeText(
+              remediation.action,
+              "NO_SAFE_REMEDIATION"
+            )}
 
-       </div>
+          </h2>
 
-     </div>
 
-   </div>
+          <p>
 
-   <div class="grid" style="margin-top:18px">
+            Risk:
 
-     <div class="panel">
+            <b>
+              ${safeText(
+                remediation.risk,
+                "UNKNOWN"
+              )}
+            </b>
 
-       <div class="muted">RETRIEVAL</div>
+            • HITL required:
 
-       <h2>Relevant evidence selected</h2>
+            <b class="yellow">
+              ${hitlRequired ? "YES" : "NO"}
+            </b>
 
-       ${sig}
+          </p>
 
-       <p class="success">
-         Token optimization:
-         ${safeText(
-           performance.estimated_token_reduction_pct,
-           "—"
-         )}% context reduction
-       </p>
 
-     </div>
+          <div class="actions">
 
-     <div class="panel">
+            <button
+              id="approveButton"
+              onclick="approve(true)"
+            >
+              ✓ Approve
+            </button>
 
-       <div class="muted">AUDIT TIMELINE</div>
 
-       <h2>Decision path</h2>
+            <button
+              id="rejectButton"
+              onclick="approve(false)"
+              style="
+                background:#242b35;
+                color:#fff
+              "
+            >
+              Reject
+            </button>
 
-       <div class="timeline">
-         ${auditHtml}
-       </div>
+          </div>
 
-     </div>
+        </div>
 
-   </div>
+      </div>
 
-   <div class="panel" style="margin-top:18px">
+    </div>
 
-     <div class="muted">EXECUTION MODE</div>
 
-     <h2>${safeText(
-       d.execution_mode || d.mode,
-       "LYZR LIVE"
-     )}</h2>
+    <div
+      class="grid"
+      style="margin-top:18px"
+    >
 
-     <p class="muted">
-       Agent pipeline:
-       ${asArray(d.agents)
-         .map(x=>typeof x==="string" ? escapeHtml(x) : escapeHtml(x?.name || x?.agent || "Agent"))
-         .join(" → ") || "Triage → Diagnosis → Remediation → RCA"}
-     </p>
+      <div class="panel">
 
-   </div>
- `;
+        <div class="muted">
+          RETRIEVAL
+        </div>
+
+        <h2>
+          Relevant evidence selected
+        </h2>
+
+        ${sig}
+
+
+        <p class="success">
+
+          Token optimization:
+
+          ${safeText(
+            performance.estimated_token_reduction_pct,
+            "—"
+          )}% context reduction
+
+        </p>
+
+      </div>
+
+
+      <div class="panel">
+
+        <div class="muted">
+          AUDIT TIMELINE
+        </div>
+
+        <h2>
+          Decision path
+        </h2>
+
+        <div
+          class="timeline"
+          id="auditTimeline"
+        >
+          ${auditHtml}
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="panel"
+      style="margin-top:18px"
+    >
+
+      <div class="muted">
+        EXECUTION MODE
+      </div>
+
+      <h2>
+
+        ${safeText(
+          d.execution_mode ||
+          d.mode,
+          "LYZR LIVE"
+        )}
+
+      </h2>
+
+      <p class="muted">
+
+        Agent pipeline:
+
+        ${
+          asArray(d.agents)
+            .map(
+              x =>
+                typeof x==="string"
+                  ? escapeHtml(x)
+                  : escapeHtml(
+                      x?.name ||
+                      x?.agent ||
+                      "Agent"
+                    )
+            )
+            .join(" → ")
+          ||
+          "Triage → Diagnosis → Remediation → RCA"
+        }
+
+      </p>
+
+    </div>
+
+  `;
+
 }
+
 
 async function approve(v){
 
- try{
+  const status=
+    document.getElementById("status");
 
-   const r=await fetch("/api/approve",{
-     method:"POST",
-     headers:{"Content-Type":"application/json"},
-     body:JSON.stringify({approved:v})
-   });
+  const approveButton=
+    document.getElementById(
+      "approveButton"
+    );
 
-   const d=await r.json();
+  const rejectButton=
+    document.getElementById(
+      "rejectButton"
+    );
 
-   if(!r.ok){
-     throw new Error(d.detail || "Approval request failed");
-   }
 
-   alert(d.message);
+  try{
 
-   if(v){
-     document.getElementById("status").textContent="INCIDENT RECOVERED";
-   }else{
-     document.getElementById("status").textContent="HITL REJECTED";
-   }
+    if(approveButton)
+      approveButton.disabled=true;
 
- }catch(err){
+    if(rejectButton)
+      rejectButton.disabled=true;
 
-   console.error("Approval error:",err);
 
-   alert("Approval request failed: " + (err.message || "Unknown error"));
+    const r=await fetch(
+      "/api/approve",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+        body:JSON.stringify({
+          approved:v
+        })
+      }
+    );
 
- }
+
+    const d=await r.json();
+
+
+    if(!r.ok){
+
+      throw new Error(
+        d.detail ||
+        "Approval request failed"
+      );
+
+    }
+
+
+    console.log(
+      "SentinelOps HITL decision:",
+      d
+    );
+
+
+    alert(
+      d.message ||
+      "HITL decision recorded."
+    );
+
+
+    /*
+     * APPROVED
+     */
+    if(v){
+
+      status.textContent=
+        "INCIDENT RECOVERED";
+
+      status.className=
+        "badge green";
+
+
+      updateAudit(
+        "APPROVED",
+        "SIMULATED_SUCCESS"
+      );
+
+
+      updateRemediationStatus(
+        "APPROVED",
+        "SIMULATED_SUCCESS"
+      );
+
+    }
+
+
+    /*
+     * REJECTED
+     */
+    else{
+
+      status.textContent=
+        "HITL REJECTED";
+
+      status.className=
+        "badge red";
+
+
+      updateAudit(
+        "REJECTED",
+        "NOT_EXECUTED"
+      );
+
+
+      updateRemediationStatus(
+        "REJECTED",
+        "NOT_EXECUTED"
+      );
+
+    }
+
+
+  }catch(err){
+
+    console.error(
+      "Approval error:",
+      err
+    );
+
+
+    alert(
+      "Approval request failed: " +
+      (
+        err.message ||
+        "Unknown error"
+      )
+    );
+
+
+  }finally{
+
+    if(approveButton)
+      approveButton.disabled=false;
+
+    if(rejectButton)
+      rejectButton.disabled=false;
+
+  }
 
 }
-</script>
 
+
+function updateAudit(
+  hitlStatus,
+  remediationStatus
+){
+
+  const timeline=
+    document.getElementById(
+      "auditTimeline"
+    );
+
+
+  if(!timeline)
+    return;
+
+
+  const items=
+    Array.from(
+      timeline.querySelectorAll(
+        ".tl"
+      )
+    );
+
+
+  let hitlFound=false;
+
+
+  items.forEach(item=>{
+
+    const spans=
+      item.querySelectorAll(
+        "span"
+      );
+
+
+    if(spans.length < 3)
+      return;
+
+
+    const step=
+      spans[1].textContent
+        .trim()
+        .toUpperCase();
+
+
+    if(step === "HITL"){
+
+      spans[2].textContent=
+        hitlStatus;
+
+      spans[2].classList.remove(
+        "muted"
+      );
+
+      spans[2].classList.add(
+        "success"
+      );
+
+      spans[0].classList.remove(
+        "pending"
+      );
+
+      hitlFound=true;
+
+    }
+
+  });
+
+
+  if(!hitlFound){
+
+    const hitl=
+      document.createElement(
+        "div"
+      );
+
+    hitl.className="tl";
+
+    hitl.innerHTML=`
+
+      <span class="dot"></span>
+
+      <span>HITL</span>
+
+      <span class="success">
+        ${escapeHtml(hitlStatus)}
+      </span>
+
+    `;
+
+    timeline.appendChild(hitl);
+
+  }
+
+
+  const remediation=
+    document.createElement(
+      "div"
+    );
+
+  remediation.className="tl";
+
+  remediation.innerHTML=`
+
+    <span class="dot"></span>
+
+    <span>REMEDIATION</span>
+
+    <span class="success">
+      ${escapeHtml(
+        remediationStatus
+      )}
+    </span>
+
+  `;
+
+  timeline.appendChild(
+    remediation
+  );
+
+}
+
+
+function updateRemediationStatus(
+  hitlStatus,
+  remediationStatus
+){
+
+  const panels=
+    document.querySelectorAll(
+      ".panel"
+    );
+
+
+  panels.forEach(panel=>{
+
+    const text=
+      panel.textContent || "";
+
+
+    if(
+      text.includes(
+        "RECOMMENDED REMEDIATION"
+      )
+    ){
+
+      const buttons=
+        panel.querySelector(
+          ".actions"
+        );
+
+
+      if(!buttons)
+        return;
+
+
+      const existing=
+        panel.querySelector(
+          ".decision-result"
+        );
+
+
+      if(existing)
+        existing.remove();
+
+
+      const result=
+        document.createElement(
+          "p"
+        );
+
+
+      result.className=
+        "decision-result success";
+
+
+      if(
+        remediationStatus ===
+        "SIMULATED_SUCCESS"
+      ){
+
+        result.innerHTML=
+          "✓ HITL APPROVED • " +
+          "Rollback simulated successfully";
+
+      }else{
+
+        result.innerHTML=
+          "✕ HITL REJECTED • " +
+          "No remediation executed";
+
+        result.className=
+          "decision-result danger";
+
+      }
+
+
+      panel.insertBefore(
+        result,
+        buttons
+      );
+
+    }
+
+  });
+
+}
+
+</script>
 
 </body>
 </html>
