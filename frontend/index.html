@@ -47,56 +47,363 @@ pre{white-space:pre-wrap;color:#cbd5e1;background:#080b10;padding:12px;border-ra
 <div class="panel"><div class="muted">Ready</div><h2>Run the demo incident</h2><p class="muted">The scenario contains synthetic Prometheus/Kubernetes-style telemetry. No real infrastructure is modified.</p></div>
 </div>
 </main>
+
 <script>
 async function analyze(){
- document.getElementById("status").textContent="ANALYZING";
- const r=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({})});
- const d=await r.json(); render(d);
- document.getElementById("status").textContent="ANALYSIS COMPLETE";
+ const status=document.getElementById("status");
+ const button=document.querySelector(".hero button");
+
+ status.textContent="ANALYZING";
+ button.disabled=true;
+ button.textContent="Analyzing...";
+
+ try{
+   const r=await fetch("/api/analyze",{
+     method:"POST",
+     headers:{"Content-Type":"application/json"},
+     body:JSON.stringify({})
+   });
+
+   const d=await r.json();
+
+   if(!r.ok){
+     throw new Error(d.detail || `Analysis failed (${r.status})`);
+   }
+
+   console.log("SentinelOps analysis response:",d);
+
+   render(d);
+   status.textContent="ANALYSIS COMPLETE";
+
+ }catch(err){
+   console.error("SentinelOps analyze error:",err);
+
+   status.textContent="ANALYSIS FAILED";
+
+   document.getElementById("content").innerHTML=`
+     <div class="panel">
+       <div class="muted">ANALYSIS ERROR</div>
+       <h2 class="danger">Incident analysis could not be completed</h2>
+       <p class="muted">${escapeHtml(err.message || "Unknown error")}</p>
+       <p class="muted">
+         Check the browser console and Render logs for the backend/Lyzr error.
+       </p>
+     </div>
+   `;
+ }finally{
+   button.disabled=false;
+   button.textContent="Analyze P1 Incident";
+ }
 }
+
+function escapeHtml(value){
+ return String(value ?? "")
+   .replace(/&/g,"&amp;")
+   .replace(/</g,"&lt;")
+   .replace(/>/g,"&gt;")
+   .replace(/"/g,"&quot;")
+   .replace(/'/g,"&#039;");
+}
+
+function asArray(value){
+ if(Array.isArray(value)) return value;
+ if(value === undefined || value === null) return [];
+ return [value];
+}
+
+function safeText(value,fallback="—"){
+ if(value === undefined || value === null || value === ""){
+   return fallback;
+ }
+ return escapeHtml(value);
+}
+
 function render(d){
- const sig=d.triage.signals.map(x=>`<div class="ev"><strong>${x.source_id}</strong><br>${x.fact}</div>`).join("");
- const ev=d.diagnosis.evidence.map(x=>`<div class="ev"><strong>${x.id}</strong><br>${x.reason}</div>`).join("");
+
+ const triage=d?.triage || {};
+ const diagnosis=d?.diagnosis || {};
+ const remediation=d?.remediation || {};
+ const safety=d?.safety || {};
+ const performance=d?.performance || {};
+ const audit=asArray(d?.audit);
+
+ const signals=asArray(triage.signals);
+ const evidence=asArray(diagnosis.evidence);
+ const alternatives=asArray(diagnosis.alternative_hypotheses);
+
+ const sig=signals.map(x=>{
+   if(typeof x==="string"){
+     return `<div class="ev">${escapeHtml(x)}</div>`;
+   }
+
+   return `
+     <div class="ev">
+       <strong>${safeText(x?.source_id || x?.id)}</strong><br>
+       ${safeText(x?.fact || x?.reason || x?.text)}
+     </div>
+   `;
+ }).join("") || `
+   <div class="ev muted">No structured triage signals returned.</div>
+ `;
+
+ const ev=evidence.map(x=>{
+   if(typeof x==="string"){
+     return `<div class="ev">${escapeHtml(x)}</div>`;
+   }
+
+   return `
+     <div class="ev">
+       <strong>${safeText(x?.id || x?.source_id)}</strong><br>
+       ${safeText(x?.reason || x?.fact || x?.text)}
+     </div>
+   `;
+ }).join("") || `
+   <div class="ev muted">No structured diagnostic evidence returned.</div>
+ `;
+
+ const altText=alternatives
+   .map(x=>{
+     if(typeof x==="string") return x;
+     return x?.hypothesis || x?.reason || x?.text || JSON.stringify(x);
+   })
+   .join("\n");
+
+ const auditHtml=audit.map(x=>{
+   if(typeof x==="string"){
+     return `
+       <div class="tl">
+         <span class="dot"></span>
+         <span>${escapeHtml(x)}</span>
+       </div>
+     `;
+   }
+
+   return `
+     <div class="tl">
+       <span class="dot"></span>
+       <span>${safeText(x?.step || x?.event || x?.name)}</span>
+       <span class="muted">${safeText(x?.status)}</span>
+     </div>
+   `;
+ }).join("") || `
+   <div class="muted">Audit timeline unavailable.</div>
+ `;
+
+ const safetyStatus=safety.status || "HITL_REQUIRED";
+
  document.getElementById("content").innerHTML=`
- <div class="kpis">
- <div class="kpi">Severity<b><span class="badge p1">${d.triage.severity}</span></b></div>
- <div class="kpi">Error Rate<b>18.7%</b><span class="muted">baseline 1.2%</span></div>
- <div class="kpi">Memory<b>94%</b><span class="muted">baseline 52%</span></div>
- <div class="kpi">Latency<b>${d.performance.latency_ms}ms</b><span class="muted">end-to-end</span></div>
- </div>
- <div class="grid" style="margin-top:18px">
- <div class="panel">
-  <div class="muted">ROOT CAUSE DIAGNOSIS</div><h2>${d.diagnosis.root_cause}</h2>
-  <p>Confidence: <b>${d.diagnosis.confidence}%</b></p>
-  <h3>Evidence chain</h3><div class="evidence">${ev}</div>
-  <h3>Alternative hypotheses</h3><pre>${d.diagnosis.alternative_hypotheses.join("\n")}</pre>
- </div>
- <div>
-  <div class="panel">
-   <div class="muted">SAFETY GATE</div><h2 class="${d.safety.status==='HITL_REQUIRED'?'':'danger'}">${d.safety.status}</h2>
-   <p>${d.safety.reason}</p>
-   <h3>Blocked actions</h3><pre>DROP DATABASE
+   <div class="kpis">
+
+     <div class="kpi">
+       Severity
+       <b>
+         <span class="badge p1">${safeText(triage.severity,"P1")}</span>
+       </b>
+     </div>
+
+     <div class="kpi">
+       Error Rate
+       <b>${safeText(performance.error_rate,"18.7%")}</b>
+       <span class="muted">baseline 1.2%</span>
+     </div>
+
+     <div class="kpi">
+       Memory
+       <b>${safeText(performance.memory,"94%")}</b>
+       <span class="muted">baseline 52%</span>
+     </div>
+
+     <div class="kpi">
+       Latency
+       <b>${safeText(performance.latency_ms,"—")}ms</b>
+       <span class="muted">end-to-end</span>
+     </div>
+
+   </div>
+
+   <div class="grid" style="margin-top:18px">
+
+     <div class="panel">
+
+       <div class="muted">ROOT CAUSE DIAGNOSIS</div>
+
+       <h2>
+         ${safeText(
+           diagnosis.root_cause,
+           "Root cause could not be determined from the available evidence."
+         )}
+       </h2>
+
+       <p>
+         Confidence:
+         <b>${safeText(diagnosis.confidence,"—")}%</b>
+       </p>
+
+       <h3>Evidence chain</h3>
+
+       <div class="evidence">
+         ${ev}
+       </div>
+
+       <h3>Alternative hypotheses</h3>
+
+       <pre>${escapeHtml(
+         altText || "No alternative hypotheses returned."
+       )}</pre>
+
+     </div>
+
+     <div>
+
+       <div class="panel">
+
+         <div class="muted">SAFETY GATE</div>
+
+         <h2 class="${safetyStatus==="HITL_REQUIRED" ? "" : "danger"}">
+           ${safeText(safetyStatus)}
+         </h2>
+
+         <p>
+           ${safeText(
+             safety.reason,
+             "Human approval is required before production-changing remediation."
+           )}
+         </p>
+
+         <h3>Blocked actions</h3>
+
+         <pre>DROP DATABASE
 DELETE POD
 REBOOT CLUSTER</pre>
-  </div>
-  <div class="panel" style="margin-top:18px">
-   <div class="muted">RECOMMENDED REMEDIATION</div><h2>${d.remediation.action}</h2>
-   <p>Risk: <b>${d.remediation.risk}</b> • HITL required: <b>YES</b></p>
-   <div class="actions"><button onclick="approve(true)">✓ Approve</button><button onclick="approve(false)" style="background:#242b35;color:#fff">Reject</button></div>
-  </div>
- </div>
- </div>
- <div class="grid" style="margin-top:18px">
-  <div class="panel"><div class="muted">RETRIEVAL</div><h2>Relevant evidence selected</h2>${sig}<p class="success">Token optimization target: ${d.performance.estimated_token_reduction_pct}% context reduction</p></div>
-  <div class="panel"><div class="muted">AUDIT TIMELINE</div><h2>Decision path</h2><div class="timeline">${d.audit.map(x=>`<div class="tl"><span class="dot"></span><span>${x.step}</span><span class="muted">${x.status}</span></div>`).join("")}</div></div>
- </div>`;
+
+       </div>
+
+       <div class="panel" style="margin-top:18px">
+
+         <div class="muted">RECOMMENDED REMEDIATION</div>
+
+         <h2>
+           ${safeText(
+             remediation.action,
+             "NO_SAFE_REMEDIATION"
+           )}
+         </h2>
+
+         <p>
+           Risk:
+           <b>${safeText(remediation.risk,"UNKNOWN")}</b>
+           • HITL required:
+           <b>${safeText(
+             remediation.requires_human_approval === false ? "NO" : "YES"
+           )}</b>
+         </p>
+
+         <div class="actions">
+           <button onclick="approve(true)">✓ Approve</button>
+
+           <button
+             onclick="approve(false)"
+             style="background:#242b35;color:#fff"
+           >
+             Reject
+           </button>
+         </div>
+
+       </div>
+
+     </div>
+
+   </div>
+
+   <div class="grid" style="margin-top:18px">
+
+     <div class="panel">
+
+       <div class="muted">RETRIEVAL</div>
+
+       <h2>Relevant evidence selected</h2>
+
+       ${sig}
+
+       <p class="success">
+         Token optimization:
+         ${safeText(
+           performance.estimated_token_reduction_pct,
+           "—"
+         )}% context reduction
+       </p>
+
+     </div>
+
+     <div class="panel">
+
+       <div class="muted">AUDIT TIMELINE</div>
+
+       <h2>Decision path</h2>
+
+       <div class="timeline">
+         ${auditHtml}
+       </div>
+
+     </div>
+
+   </div>
+
+   <div class="panel" style="margin-top:18px">
+
+     <div class="muted">EXECUTION MODE</div>
+
+     <h2>${safeText(
+       d.execution_mode || d.mode,
+       "LYZR LIVE"
+     )}</h2>
+
+     <p class="muted">
+       Agent pipeline:
+       ${asArray(d.agents)
+         .map(x=>typeof x==="string" ? escapeHtml(x) : escapeHtml(x?.name || x?.agent || "Agent"))
+         .join(" → ") || "Triage → Diagnosis → Remediation → RCA"}
+     </p>
+
+   </div>
+ `;
 }
+
 async function approve(v){
- const r=await fetch("/api/approve",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({approved:v})});
- const d=await r.json();
- alert(d.message);
- if(v) document.getElementById("status").textContent="INCIDENT RECOVERED";
+
+ try{
+
+   const r=await fetch("/api/approve",{
+     method:"POST",
+     headers:{"Content-Type":"application/json"},
+     body:JSON.stringify({approved:v})
+   });
+
+   const d=await r.json();
+
+   if(!r.ok){
+     throw new Error(d.detail || "Approval request failed");
+   }
+
+   alert(d.message);
+
+   if(v){
+     document.getElementById("status").textContent="INCIDENT RECOVERED";
+   }else{
+     document.getElementById("status").textContent="HITL REJECTED";
+   }
+
+ }catch(err){
+
+   console.error("Approval error:",err);
+
+   alert("Approval request failed: " + (err.message || "Unknown error"));
+
+ }
+
 }
 </script>
+
+
 </body>
 </html>
