@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -236,7 +237,13 @@ function render(d){
 
        <p>
          Confidence:
-         <b>${safeText(diagnosis.confidence,"—")}%</b>
+         <b>${
+           diagnosis.confidence !== undefined &&
+           diagnosis.confidence !== null &&
+           diagnosis.confidence !== ""
+             ? `${Math.round(Number(diagnosis.confidence) * 100)}%`
+             : "—"
+         }</b>
        </p>
 
        <h3>Evidence chain</h3>
