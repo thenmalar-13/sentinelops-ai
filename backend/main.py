@@ -6,10 +6,10 @@ from pydantic import BaseModel
 from typing import Any
 import os, json, time, uuid
 
-from telemetry import build_demo_incident
-from retrieval import retrieve_evidence
-from safety import evaluate_action
-from lyzr_client import call_lyzr
+from backend.telemetry import build_demo_incident
+from backend.retrieval import retrieve_evidence
+from backend.safety import evaluate_action
+from backend.lyzr_client import call_lyzr
 
 load_dotenv()
 
